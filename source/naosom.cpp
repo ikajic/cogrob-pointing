@@ -148,7 +148,7 @@ int main(int argc, char *argv[]){
 	// network configuration
 	const int nr_rows = atoi(argv[1]);
 	const int nr_cols = atoi(argv[1]);
-	const int32_t nr_epochs = 10; 
+	const int32_t nr_epochs = 100; 
 	const string data_path = "data/";
 
 	
@@ -168,14 +168,16 @@ int main(int argc, char *argv[]){
 
 	
 	// print network weights
-	cout << "saving SOM weights before training..." << endl;
+	cout << "saving SOM weights before training" << endl;
 	save_weights(data_path + "w_init_hands", som_hands);
 	save_weights(data_path + "w_init_joints", som_joints);
-
+	
+	cout << "Training...";
 	train_network(som_hands, data_hands,  nr_epochs);
 	train_network(som_joints, data_joints,  nr_epochs);
+	cout << "done!" << endl;
 	
-	cout << "saving SOM weights after training..." << endl;
+	cout << "saving SOM weights after training" << endl;
 	save_weights(data_path + "w_final_hands", som_hands);
 	save_weights(data_path + "w_final_joints", som_joints);	
 

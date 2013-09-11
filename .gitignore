@@ -1,4 +1,5 @@
 build
 *.o
 *~
+*.pyc
 helper_scripts

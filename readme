@@ -1,1 +1,2 @@
-Modified version of KNNL library that supports Hebbian Learning on SOMs.
++ Modified version of KNNL library that supports Hebbian Learning between two SOMs. 
++ Added python code to plot different SOM plots
