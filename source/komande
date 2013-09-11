@@ -1,0 +1,8 @@
+ivana@cakana:~/knnl-0.1.4/knnl/source$ g++ -I../include/ -Wall -fomit-frame-pointer -pedantic -ansi -pipe -O3 -finline-functions -funroll-all-loops -fno-strict-aliasing -fPIC -msse -c main.cpp -o main.o
+
+ivana@cakana:~/knnl-0.1.4/knnl/source$ g++ -I../include/ -Wall -fomit-frame-pointer -pedantic -ansi -pipe -O3 -finline-functions -funroll-all-loops -fno-strict-aliasing -fPIC -msse -c configuration.cpp -o configuration.o
+
+ivana@cakana:~/knnl-0.1.4/knnl/source$ g++ -z combreloc naosom.o configuration.o -lboost_program_options-mt -o naosom.debug
+
+strip -R .comment -R .note -R .note.ABI-tag -s knnl_demo.debug -o knnl_demo
+
