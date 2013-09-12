@@ -131,7 +131,6 @@ void get_activations(Kohonen_network &som, V_d &data, hebb_out &wta){
 				}
 		}
 	}
-
 	wta.push_back(max_x);
 	wta.push_back(max_y);
 	wta.push_back(max_A);			
@@ -140,26 +139,27 @@ void get_activations(Kohonen_network &som, V_d &data, hebb_out &wta){
 
 int main(int argc, char *argv[]){	
 	
-	if (argc < 1) {
-		cout << "Please specify network dimensions as one integers... exiting" << endl;
-		return 0;
+	if (argc < 3) {
+		cout << "Err: Please specify the nr of neurons and nr of train epochs" << endl;
+		return 1;
 	}
 	
-	// network configuration
-	const int nr_rows = atoi(argv[1]);
-	const int nr_cols = atoi(argv[1]);
-	const int32_t nr_epochs = 100; 
+	// network configuration, currently supported only squared sheet of neurons 
+	const size_t nr_rows = atoi(argv[1]);
+	const size_t nr_cols = atoi(argv[1]);
+	const size_t nr_epochs = atoi(argv[2]); 
 	const string data_path = "data/";
 
 	
-	Internal_randomize IR;
-	G_a_f g_a_f ( 2.0, 1 ); // Activation function
-	C_a_f c_a_f ( 2.0, 1 );
+	Internal_randomize IR; // Randomization policy for shuffling the data
+	C_a_f c_a_f ( 2.0, 1 ); // Cauchy activation function (wider tails cmpd to Gauss)
 	
+	// Get columnwise stored data
         V_v_d data_hands, data_joints;  
 	read_input(data_hands, data_path + "hands"); 
 	read_input(data_joints, data_path + "joints"); 
 	
+	// 2 SOMs, one for hand movements, other for joint movements
 	Kohonen_network som_hands;
 	Kohonen_network som_joints;
 	
@@ -167,8 +167,7 @@ int main(int argc, char *argv[]){
 	generate_kohonen_network(nr_rows, nr_cols, c_a_f, e_d, data_joints, som_joints, IR);
 
 	
-	// print network weights
-	cout << "saving SOM weights before training" << endl;
+	// save network weights before the training
 	save_weights(data_path + "w_init_hands", som_hands);
 	save_weights(data_path + "w_init_joints", som_joints);
 	
@@ -177,12 +176,13 @@ int main(int argc, char *argv[]){
 	train_network(som_joints, data_joints,  nr_epochs);
 	cout << "done!" << endl;
 	
-	cout << "saving SOM weights after training" << endl;
+	// save network weights after the training
 	save_weights(data_path + "w_final_hands", som_hands);
 	save_weights(data_path + "w_final_joints", som_joints);	
 
-
-	double hebb_weights[nr_rows][nr_cols][nr_rows][nr_cols];// = {0};
+	
+	// Initialize weights for Hebbian learning to 0
+	double hebb_weights[nr_rows][nr_cols][nr_rows][nr_cols];
 
 	for(size_t i = 0; i < nr_rows; ++i)
 	    for(size_t j = 0; j < nr_cols; ++j)
@@ -190,35 +190,30 @@ int main(int argc, char *argv[]){
 			for(size_t l = 0; l < nr_cols; ++l)
 				hebb_weights[i][j][k][l] = 0;
 	   
-	double alpha = 0.3;
+	double alpha = 0.1; // learning rate, TODO: try adaptive
 		
+	// WTA Hebb
 	for (unsigned int idx = 0; idx < data_hands.size(); ++idx)
 	{
-		hebb_out w1, w2;
+		// Vectors storing coordinates and activations of winning nodes
+		hebb_out w1, w2; 
+		
 		get_activations(som_hands, data_hands[idx], w1);
 		get_activations(som_joints, data_joints[idx], w2);
 		
-		hebb_weights[(int)w1[0]][(int)w1[1]][(int)w2[0]][(int)w2[1]] = alpha * w1[2] * w2[2];
-		Print(w1);
-		Print(w2);
-		//cout << hebb_weights[(int)w1[0]][(int)w1[1]][(int)w2[0]][(int)w2[1]] << endl;
-
+		double pre = w1[2]; // Presyn act
+		double post = w2[2]; // Postsyn act
+		cout << "pre " << pre << "post " << post << endl; 
+		double *w = &hebb_weights[(int)w1[0]][(int)w1[1]][(int)w2[0]][(int)w2[1]];
+		
+		// Oja's rule
+		double delta_w = alpha*post*(pre-post*(*w));
+		
+		*w += delta_w ;
 	}
 	
 	/* prediction */
-	/*
-		
-	cout << "SOM hands after training: " << endl;
-	print_network_weights(cout, som_hands);
-	cout << endl;
 	
-	cout << "SOM joints after training: " << endl;
-	print_network_weights(cout, som_joints);
-	cout << endl;
 
-	cout << "saving SOM weights after training..." << endl;
-	save_weights("weights_after_hands", som_hands);
-	save_weights("weights_after_joints", som_joints);	
-	*/
 	return 0;
 }	
