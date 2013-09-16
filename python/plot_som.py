@@ -7,11 +7,7 @@ def fetch_data(path, skip = 0):
 	'''
 	Columnwise stored data used by SOMs (either neural weights or input data).
 	''' 
-	with open(path) as file:	
-		for _ in xrange(skip):
-			next(file)
-		rows = [filter(None, [x.strip() for x in line.split('\t')]) for line in file]
-	data = np.array(rows).astype(float)
+	data = np.genfromtxt(path, dtype='float', skiprows=skip)
 	return data
 
 def plot_weights(init_som, final_som, title=['SOM init', 'SOM final'], dim_lab=None):
@@ -34,23 +30,26 @@ def plot_weights(init_som, final_som, title=['SOM init', 'SOM final'], dim_lab=N
 		# plot weights before training
 		plt.suptitle(title[0], fontsize = 14)
 		ax = fig.add_subplot(2, d, i+1)
-		ax.imshow(init_som[:, i].reshape(width, width), interpolation='nearest')
+		img = init_som[:, i].reshape(width, width)
+		ax.imshow(img, interpolation='nearest')
 		plt.title(lab)
 
 		# same weights after training
 
 		ax = fig.add_subplot(2, d, (i+1) + d)
 		if i==int(d/2.): plt.title(title[1])
-		ax.imshow(final_som[:, i].reshape(width, width), interpolation='nearest')
+		img_f = final_som[:, i].reshape(width, width)
+		ax.imshow(img_f, interpolation='nearest')
 
-def plot_data3d(init_som, final_som, data, title=None, nr_nodes=50):
+def plot_data3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	'''
 	3D plot of input data, initial positions of neurons and positions of neurons after training
 	'''
 
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection = '3d')
-	ax.scatter(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o')
+	if init_som is not None:
+		ax.scatter(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o')
 	ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.4)
 	ax.scatter(data[:, 0], data[:,1], data[:,2], c='b', marker='.', alpha=0.2)
 

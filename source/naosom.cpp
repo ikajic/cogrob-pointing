@@ -1,6 +1,7 @@
 #include <boost/cstdint.hpp>
 #include <string.h>
 #include <csignal> 
+#include <float.h>
 
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -147,13 +148,13 @@ int main(int argc, char *argv[]){
 	// network configuration, currently supported only squared sheet of neurons 
 	const size_t nr_rows = atoi(argv[1]);
 	const size_t nr_cols = atoi(argv[1]);
-	const size_t nr_epochs = atoi(argv[2]); 
+	const size_t nr_epochs = 100; //atoi(argv[2]);
 	const string data_path = "data/";
 
 	
 	Internal_randomize IR; // Randomization policy for shuffling the data
 	C_a_f c_a_f ( 2.0, 1 ); // Cauchy activation function (wider tails cmpd to Gauss)
-	
+
 	// Get columnwise stored data
         V_v_d data_hands, data_joints;  
 	read_input(data_hands, data_path + "hands"); 
@@ -203,7 +204,7 @@ int main(int argc, char *argv[]){
 		
 		double pre = w1[2]; // Presyn act
 		double post = w2[2]; // Postsyn act
-		cout << "pre " << pre << "post " << post << endl; 
+		//cout << "pre " << pre << " post " << post << endl; 
 		double *w = &hebb_weights[(int)w1[0]][(int)w1[1]][(int)w2[0]][(int)w2[1]];
 		
 		// Oja's rule
@@ -211,9 +212,36 @@ int main(int argc, char *argv[]){
 		
 		*w += delta_w ;
 	}
+	cout << "hands" << endl;
+	print_network_weights(cout, som_hands);
+
+	cout << "joints" << endl;
+	print_network_weights(cout, som_joints);	
 	
-	/* prediction */
-	
+	// For each neuron in the second sheet, print coordinates of a neuron 
+	// in the first sheet that has the strongest connection to that neuron
+	for (size_t i = 0; i < nr_rows; i++)
+	{
+		for (size_t j = 0; j < nr_cols; j++)
+		{
+		    double maxWeight = -DBL_MAX;
+		    int map2X = 0; int map2Y = 0;
+		    for (size_t k = 0; k < nr_rows; k++)
+		    {
+			for (size_t l = 0; l < nr_cols; l++)
+			{
+			    if (hebb_weights[i][j][k][l] > maxWeight)
+			    {
+				maxWeight = hebb_weights[i][j][k][l];
+				map2X = k; map2Y = l;
+			    }
+			}
+		    }
+		    cout << "(" << map2X << ", " << map2Y << ")  ";
+		}
+	cout << endl;
+	}	
+
 
 	return 0;
 }	

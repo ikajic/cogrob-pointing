@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from plot_som import fetch_data, plot_weights, plot_data3d
 
 
-base_path = '../build/make/data/'	
+base_path = '/home/ivana/knnl-0.1.4/knnl/build/make/data/'	
 
 init_som = fetch_data(base_path + 'w_init_hands')
 final_som = fetch_data(base_path + 'w_final_hands')
