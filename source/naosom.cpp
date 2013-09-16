@@ -204,7 +204,6 @@ int main(int argc, char *argv[]){
 		
 		double pre = w1[2]; // Presyn act
 		double post = w2[2]; // Postsyn act
-		//cout << "pre " << pre << " post " << post << endl; 
 		double *w = &hebb_weights[(int)w1[0]][(int)w1[1]][(int)w2[0]][(int)w2[1]];
 		
 		// Oja's rule
