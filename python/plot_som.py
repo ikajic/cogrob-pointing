@@ -41,7 +41,7 @@ def plot_weights(init_som, final_som, title=['SOM init', 'SOM final'], dim_lab=N
 		img_f = final_som[:, i].reshape(width, width)
 		ax.imshow(img_f, interpolation='nearest')
 
-def plot_data3d(final_som, data, init_som=None, title=None, nr_nodes=50):
+def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	'''
 	3D plot of input data, initial positions of neurons and positions of neurons after training
 	'''
@@ -50,9 +50,11 @@ def plot_data3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	ax = fig.add_subplot(111, projection = '3d')
 
 	if init_som is not None:
-		ax.scatter(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o')
-	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.1, label='data')
-	n = ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.6, label='neurons', markersize=5)
+		ax.plot(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o', label='init', linestyle='None', alpha=0.6, markersize=3)
+		
+	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.4, label='data')
+	n = ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.6, label='neurons', markersize=4)
+	
 	ax.legend(numpoints=1)
 	fig.suptitle(title)
 
