@@ -63,5 +63,6 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	ax.legend(numpoints=1)
 	fig.suptitle(title)
 
-
+def show():
+	plt.show()
 
