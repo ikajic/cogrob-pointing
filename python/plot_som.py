@@ -43,11 +43,16 @@ def plot_weights(init_som, final_som, title=['SOM init', 'SOM final'], dim_lab=N
 
 def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	'''
-	3D plot of input data, initial positions of neurons and positions of neurons after training
+	3D plot of input data, initial positions of neurons and positions of neurons after training.
+	If data have more than 3 dimensions, plot only the first three.
 	'''
 
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection = '3d')
+	
+	if data.shape[1] > 3:
+		print "using only 3 dimensions for plotting"
+		data = data[:,:3]
 
 	if init_som is not None:
 		ax.plot(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o', label='init', linestyle='None', alpha=0.6, markersize=3)
