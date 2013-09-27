@@ -1,4 +1,4 @@
-from numpy import genfromtxt, zeros, product, setdiff1d, arange
+from numpy import genfromtxt, zeros, product, setdiff1d, arange, where
 from parameters import param
 
 import plot_som as ps
@@ -9,7 +9,7 @@ import pdb
 from minisom import MiniSom
 
 #TODO
-import pylab as pl
+import pylab as plt
 
 def get_path():
 	"""
@@ -108,7 +108,7 @@ def plot_inactivated_nodes(som, inact):
 	#plot inactivated nodes in red
 	in_w = w[inact, :]
 	i = ax.plot(in_w[:, 0], in_w[:, 1], in_w[:, 2], c='r', marker='o', alpha = 0.6, label='inact. neurons', markersize=6, linestyle='None')
-	plt.legend(nrpoints=1)
+	plt.legend(numpoints=1)
 	
 if __name__=="__main__":
 	path = get_path()
@@ -120,7 +120,7 @@ if __name__=="__main__":
 	som_hands = train_som(data['hands'])
 	som_joints = train_som(data['joints'])
 
-	plot(som_hands, som_joints)
+	#plot(som_hands, som_joints)
 	inact = som_joints.activation_response(som_joints.data)
 	coord_inact = where(inact.flatten()==0)[0]
 	plot_inactivated_nodes(som_joints, coord_inact)
