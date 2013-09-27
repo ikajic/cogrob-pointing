@@ -1,5 +1,6 @@
 from numpy import genfromtxt, zeros, product, setdiff1d, arange, where
 from parameters import param
+from random import choice
 
 import plot_som as ps
 import sys
@@ -7,6 +8,7 @@ import os
 import pdb
 
 from minisom import MiniSom
+from similar_vec import get_similar_data
 
 #TODO
 import pylab as plt
@@ -77,6 +79,8 @@ def hebbian_learning(som1, som2, data):
 		
 	return hebb
 
+
+
 # useful plotting, TODO extract to plot som
 def plot(som_hands, som_joints):
 	wi_0, w_0 = som_hands.get_weights()	
@@ -110,6 +114,23 @@ def plot_inactivated_nodes(som, inact):
 	i = ax.plot(in_w[:, 0], in_w[:, 1], in_w[:, 2], c='r', marker='o', alpha = 0.6, label='inact. neurons', markersize=6, linestyle='None')
 	plt.legend(numpoints=1)
 	
+def print_strongest_connections(hebb_weights):
+	# print the strongest connections
+	for i in xrange(param['nr_rows']):
+		for j in xrange(param['nr_cols']):
+			maxw = -100
+			map2X = 0; 
+			map2Y = 0;
+			for k in xrange(param['nr_rows']):
+				for t in xrange(param['nr_cols']):
+					if (hebb_weights[i][j][k][t] > maxw):
+						maxw= hebb_weights[i][j][k][t];
+						map2X = k; map2Y = t;
+			string = "(" + str(map2X) + ", " + str(map2Y) + ")  "
+			sys.stdout.write(string)
+		print ''
+	
+
 if __name__=="__main__":
 	path = get_path()
 
@@ -123,11 +144,46 @@ if __name__=="__main__":
 	#plot(som_hands, som_joints)
 	inact = som_joints.activation_response(som_joints.data)
 	coord_inact = where(inact.flatten()==0)[0]
-	plot_inactivated_nodes(som_joints, coord_inact)
-	
+	plot_inactivated_nodes(som_joints, coord_inact)	
 		
 	# hebbian learning between maps
 	hebb_weights = hebbian_learning(som_hands, som_joints, data)
-	h = hebb_weights.reshape(25, 25)
+	h = hebb_weights.reshape(param['nr_rows']**2, param['nr_cols']**2)
 
-	# print the strongest connections
+	print_strongest_connections(hebb_weights)
+	
+	# Trying out some simple tests that should work if our soms have been trained
+	# properly. These should be converted to unit tests one day
+		
+	# 1. Test SOM training
+	# Pick 5 random data points, each one of them should be unambiguously 	
+	# closest to one neuron. Check whether that neuron shows the highest activation
+	# a) for hands
+
+	# pick random points
+	np = 10
+	_, w = som_hands.get_weights()
+	
+	closest_dps = zeros((np, som_hands.data.shape[1]))
+	for i in xrange(np):
+		closest_dps[i, :] = choice(som_hands.data)
+	
+	# get weights of closest neurons
+	true = som_hands.quantization(closest_dps)
+	
+	# check if closest neurons are really the closest ones
+	est = zeros((np, som_hands.data.shape[1]))
+	for i, dp in enumerate(closest_dps):
+		v, q = get_similar_data(w, dp, eta=0.2)
+		est[i, :] = v[0]
+
+	print (est==true).all()
+	
+	# b) for joints
+	
+	# 2. Test Hebbian learning
+	# Pick 3 data points from hands SOM, and check what neurons are activated in
+	# the joints SOM. Ones that are activated in the joints SOM should have similar weights
+	# as normalized joints coordinates paired up with the corresponding hand data point. 
+	
+	
