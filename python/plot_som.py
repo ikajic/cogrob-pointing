@@ -51,7 +51,7 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	ax = fig.add_subplot(111, projection = '3d')
 	
 	if data.shape[1] > 3:
-		print "using only 3 dimensions for plotting"
+		print "Truncating %d dimensions to 3 for plotting" % (data.shape[1])
 		data = data[:,:3]
 
 	if init_som is not None:
