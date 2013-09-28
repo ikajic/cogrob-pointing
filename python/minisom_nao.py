@@ -140,14 +140,17 @@ def predict_joints_configuration(hebb, hands):
 	return hands
 
 if __name__=="__main__":
+	nr_pts = 10000
 	path = get_path()
 
 	# get the coordinates learned during random motor babbling 
-	data = read_data(path, 5000)
+	data = read_data(path, nr_pts)
 
 	# train self-organizing maps
 	som_hands = train_som(data['hands'])
 	som_joints = train_som(data['joints'])
+	
+	print "Using %d data points for training"%(som_hands.data.shape[0])
 	
 	#plot(som_hands, som_joints)
 	inact = som_hands.activation_response(som_hands.data)
@@ -155,18 +158,13 @@ if __name__=="__main__":
 	print '%.0f%% of unactivated nodes'%(len(coord_inact)/product(som_hands.weights.shape[:2]) *100)
 		
 	plot_inactivated_nodes(som_joints, coord_inact)	
-	ps.show()
 		
 	# hebbian weights connecting maps
 	hebb = hebbian_learning(som_hands, som_joints)
 
 	#print_strongest_connections(hebb)	
-	nr_pts = 5
 	mse = 0
 	_, w = som_joints.get_weights()
-		
-	#print 'Hands\t\t\t Joints\t\t\t Predicted joints'
-	#set_printoptions(precision=3)
 	
 	for i in xrange(nr_pts):
 		idx = random.randint(0, len(som_hands.data)-1) # l(sh.d) == l(sj.d)
@@ -184,16 +182,27 @@ if __name__=="__main__":
 		
 		sim_joints, q = get_similar_data(w, som_joints.data[idx, :])
 	
-		print 'Data vector:', som_joints.data[idx, :]
-		print 'Hebb chosen vector:', joints
-		print 'Similar vectors:\n', 
-		for i, j in zip(sim_joints, q):
-			print i, j
+		if 0:
+			print 'Data vector:', som_joints.data[idx, :]
+			print 'Hebb chosen vector:', joints
+			print 'Similar vectors:\n', 
+			for i, j in zip(sim_joints, q):
+				print i, j
 		
 		dist = sum(som_joints.data[idx, :] - joints)
 		mse += sum((som_joints.data[idx, :] - joints)**2)
-		#print hands_view, som_joints.data[idx, :], joints, abs(dist)
-		print ''
 		
 	print 'MSE', mse/nr_pts	
-	ps.show()
+	
+	# TODO
+	# Make data C++ ready: export normalized som_*.{data, weights} and 
+	# hebbian weights to a file read by naosom.cpp
+	
+	
+	# Prediction flow (the most painless version): 
+	# - get hand marker xyz coordinates
+	# - normalize
+	# - find the closest existing xyz point in KB  (!)
+	# - fetch the corresponding joints from hebb weights
+	# - send out motor command
+	

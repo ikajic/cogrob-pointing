@@ -92,11 +92,10 @@ class TestSOMs(unittest.TestCase):
 			s, _ = get_similar_data(w, dp)
 			
 			# make sure the closest vector is not in i_w
-			# too much for loops here.. ugly!
+			# too many for loops here.. ugly!
 			_, qi = get_similar_data(i_w, s[0])
 			_, qa = get_similar_data(a_w, s[0])
 			self.assertGreater(qi[0], qa[0])
-		
-		
+				
 if __name__ == "__main__":
 	unittest.main()
