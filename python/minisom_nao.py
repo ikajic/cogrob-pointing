@@ -101,7 +101,7 @@ def plot_inactivated_nodes(som, inact):
 	ax = fig.add_subplot(111, projection = '3d')
 	data = som.data
 	
-	data = data[:,:3]
+	data = data[:,:3][::20]
 		
 	# plot data points	
 	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.4, label='data')
@@ -143,15 +143,17 @@ if __name__=="__main__":
 	path = get_path()
 
 	# get the coordinates learned during random motor babbling 
-	data = read_data(path)
+	data = read_data(path, 5000)
 
 	# train self-organizing maps
 	som_hands = train_som(data['hands'])
 	som_joints = train_som(data['joints'])
-
+	
 	#plot(som_hands, som_joints)
-	inact = som_joints.activation_response(som_joints.data)
+	inact = som_hands.activation_response(som_hands.data)
 	coord_inact = where(inact.flatten()==0)[0]
+	print '%.0f%% of unactivated nodes'%(len(coord_inact)/product(som_hands.weights.shape[:2]) *100)
+		
 	plot_inactivated_nodes(som_joints, coord_inact)	
 	ps.show()
 		
@@ -159,25 +161,39 @@ if __name__=="__main__":
 	hebb = hebbian_learning(som_hands, som_joints)
 
 	#print_strongest_connections(hebb)	
-	nr_pts = 10
+	nr_pts = 5
 	mse = 0
-	print 'Hands\t\t\t Joints\t\t\t Predicted joints'
-	set_printoptions(precision=3)
+	_, w = som_joints.get_weights()
+		
+	#print 'Hands\t\t\t Joints\t\t\t Predicted joints'
+	#set_printoptions(precision=3)
 	
 	for i in xrange(nr_pts):
 		idx = random.randint(0, len(som_hands.data)-1) # l(sh.d) == l(sj.d)
 		hands_view = som_hands.data[idx, :]
 		
+		# activate a neuron in the first map
 		win_1 = som_hands.winner(hands_view)
+		
+		# find the neuron with the strongest connection in the second map
 		win_2 = unravel_index(hebb[win_1[0], win_1[1], :, :].argmax(), \
 			som_hands.weights.shape[:2])
-		
+			
+		# get its weights
 		joints = som_joints.weights[win_2[0], win_2[1], :]
+		
+		sim_joints, q = get_similar_data(w, som_joints.data[idx, :])
+	
+		print 'Data vector:', som_joints.data[idx, :]
+		print 'Hebb chosen vector:', joints
+		print 'Similar vectors:\n', 
+		for i, j in zip(sim_joints, q):
+			print i, j
 		
 		dist = sum(som_joints.data[idx, :] - joints)
 		mse += sum((som_joints.data[idx, :] - joints)**2)
-		print hands_view, som_joints.data[idx, :], joints, abs(dist)
-		
+		#print hands_view, som_joints.data[idx, :], joints, abs(dist)
+		print ''
 		
 	print 'MSE', mse/nr_pts	
 	ps.show()
