@@ -74,7 +74,29 @@ class TestSOMs(unittest.TestCase):
 
 		np.testing.assert_array_almost_equal(est, true, decimal=4)	
 		
+	def testInactivatedNodesReallyUseless(self):
+		"""
+		Since a small portion of trained nodes remains inactive in every trial,
+		check whether there really aren't any data points to which this inactivated
+		nodes are closest
+		"""
+		i_nodes = self.som_hands.activation_response(self.som_hands.data)
+		idx_inact = np.where(i_nodes.flatten()==0)[0]
+		_, w = self.som_hands.get_weights()
+		
+		act = np.setdiff1d(np.arange(w.shape[0]), idx_inact)		
+		i_w = w[idx_inact, :]
+		a_w = w[act, :]
 
+		for i, dp in enumerate(self.som_hands.data):
+			s, _ = get_similar_data(w, dp)
 			
+			# make sure the closest vector is not in i_w
+			# too much for loops here.. ugly!
+			_, qi = get_similar_data(i_w, s[0])
+			_, qa = get_similar_data(a_w, s[0])
+			self.assertGreater(qi[0], qa[0])
+		
+		
 if __name__ == "__main__":
 	unittest.main()
