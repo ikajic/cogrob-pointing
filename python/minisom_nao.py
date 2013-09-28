@@ -1,4 +1,6 @@
-from numpy import genfromtxt, zeros, product, setdiff1d, arange, where, set_printoptions, unravel_index
+from __future__ import division
+
+from numpy import genfromtxt, zeros, product, setdiff1d, arange, where, set_printoptions, unravel_index, tanh
 from parameters import param
 from random import choice
 
@@ -31,7 +33,7 @@ def get_path():
 
 	return path
 
-def read_data(path):
+def read_data(path, nrpts=50):
 	"""
 	Return babbling coordinates for hands and joints.
 		nrpts - take each nrpts-th coordinate for training
@@ -41,8 +43,8 @@ def read_data(path):
 	joints = param['joints']
 		
 	data = {
-		'hands': genfromtxt(path, skiprows=3, usecols=hands),
-		'joints': genfromtxt(path, skiprows=3, usecols=joints)
+		'hands': genfromtxt(path, skiprows=3, usecols=hands)[:nrpts],
+		'joints': genfromtxt(path, skiprows=3, usecols=joints)[:nrpts]
 		}
 
 	return data 
@@ -63,21 +65,23 @@ def train_som(data):
 	
 	return som
 
-def hebbian_learning(som1, som2, data):
+def hebbian_learning(som1, som2):
 	s1, s2 = som1.weights.shape, som2.weights.shape
-	hebb = zeros((param['nr_rows'], param['nr_cols'], param['nr_rows'], param['nr_cols']))
+	hebb = zeros((param['nr_rows'], param['nr_cols'], \
+		param['nr_rows'], param['nr_cols']))
 	
+	f = lambda x: 1/(1+tanh(x))
 	for dp1, dp2 in zip(som1.data, som2.data):
+		#pdb.set_trace()
 		act1 = som1.activate(dp1)
 		act2 = som2.activate(dp2)
 				
 		idx1 = som1.winner(dp1)
 		idx2 = som2.winner(dp2)
 		
-		hebb[idx1[0], idx1[1], idx2[0], idx2[1]] += param['eta'] * act1[idx1] * act2[idx2]
+		hebb[idx1[0], idx1[1], idx2[0], idx2[1]] += param['eta'] * f(act1[idx1]) * f(act2[idx2])
 		
 	return hebb
-
 
 
 # useful plotting, TODO extract to plot som
@@ -85,8 +89,8 @@ def plot(som_hands, som_joints):
 	wi_0, w_0 = som_hands.get_weights()	
 	wi_1, w_1 = som_joints.get_weights()
 
-	ps.plot_3d(final_som=w_0, data=som_hands.data[::50], init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
-	ps.plot_3d(final_som=w_1, data=som_joints.data[::50], init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
+	ps.plot_3d(final_som=w_0, data=som_hands.data, init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
+	ps.plot_3d(final_som=w_1, data=som_joints.data, init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
 
 
 def plot_inactivated_nodes(som, inact):
@@ -95,11 +99,9 @@ def plot_inactivated_nodes(som, inact):
 	
 	fig = plt.figure()
 	ax = fig.add_subplot(111, projection = '3d')
-	data = som.data[::50]
+	data = som.data
 	
-	if data.shape[1] > 3:
-		print "using only 3 dimensions for plotting"
-		data = data[:,:3]
+	data = data[:,:3]
 		
 	# plot data points	
 	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.4, label='data')
@@ -147,27 +149,23 @@ if __name__=="__main__":
 	som_hands = train_som(data['hands'])
 	som_joints = train_som(data['joints'])
 
-	plot(som_hands, som_joints)
+	#plot(som_hands, som_joints)
 	inact = som_joints.activation_response(som_joints.data)
 	coord_inact = where(inact.flatten()==0)[0]
 	plot_inactivated_nodes(som_joints, coord_inact)	
+	ps.show()
 		
-	# hebbian learning between maps
-	hebb = hebbian_learning(som_hands, som_joints, data)
+	# hebbian weights connecting maps
+	hebb = hebbian_learning(som_hands, som_joints)
 
-	#print_strongest_connections(hebb)
-	
-	# 2. Test Hebbian learning
-	# Pick 3 data points from hands SOM, and check what neurons are activated in
-	# the joints SOM. Ones that are activated in the joints SOM should have similar weights
-	# as normalized joints coordinates paired up with the corresponding hand data point. 
-	
+	#print_strongest_connections(hebb)	
 	nr_pts = 10
+	mse = 0
 	print 'Hands\t\t\t Joints\t\t\t Predicted joints'
 	set_printoptions(precision=3)
 	
 	for i in xrange(nr_pts):
-		idx = random.randint(0, len(som_hands.data)) # l(sh.d) == l(sj.d)
+		idx = random.randint(0, len(som_hands.data)-1) # l(sh.d) == l(sj.d)
 		hands_view = som_hands.data[idx, :]
 		
 		win_1 = som_hands.winner(hands_view)
@@ -176,8 +174,10 @@ if __name__=="__main__":
 		
 		joints = som_joints.weights[win_2[0], win_2[1], :]
 		
-		dist = sum(abs(som_joints.data[idx, :] - joints))
-		print hands_view, som_joints.data[idx, :], joints, dist
+		dist = sum(som_joints.data[idx, :] - joints)
+		mse += sum((som_joints.data[idx, :] - joints)**2)
+		print hands_view, som_joints.data[idx, :], joints, abs(dist)
 		
 		
-		
+	print 'MSE', mse/nr_pts	
+	ps.show()

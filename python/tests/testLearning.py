@@ -2,9 +2,10 @@ import unittest
 import numpy as np
 import minisom_nao
 import pdb
+import random
 
 from similar_vec import get_similar_data
-from random import choice
+
 
 class TestSOMs(unittest.TestCase):
 	
@@ -39,7 +40,7 @@ class TestSOMs(unittest.TestCase):
 	
 		closest_dps = np.zeros((npoints, self.som_hands.data.shape[1]))
 		for i in xrange(npoints):
-			closest_dps[i, :] = choice(self.som_hands.data)
+			closest_dps[i, :] = random.choice(self.som_hands.data)
 	
 		true = self.som_hands.quantization(closest_dps)
 	
@@ -61,7 +62,7 @@ class TestSOMs(unittest.TestCase):
 	
 		closest_dps = np.zeros((npoints, self.som_joints.data.shape[1]))
 		for i in xrange(npoints):
-			closest_dps[i, :] = choice(self.som_joints.data)
+			closest_dps[i, :] = random.choice(self.som_joints.data)
 	
 		true = self.som_joints.quantization(closest_dps)
 	
@@ -73,5 +74,7 @@ class TestSOMs(unittest.TestCase):
 
 		np.testing.assert_array_almost_equal(est, true, decimal=4)	
 		
+
+			
 if __name__ == "__main__":
 	unittest.main()
