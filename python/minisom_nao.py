@@ -204,7 +204,7 @@ if __name__=="__main__":
 	savetxt('som2.csv', wj, delimiter=',')
 	
 	# Save Hebbian weights 
-	savetxt('hebb.csv', hebb, delimiter=',')
+	savetxt('hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
 	
 	
 	# Prediction flow (the most painless version): 
