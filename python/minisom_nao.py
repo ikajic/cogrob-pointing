@@ -1,6 +1,6 @@
 from __future__ import division
 
-from numpy import genfromtxt, zeros, product, setdiff1d, arange, where, set_printoptions, unravel_index, tanh
+from numpy import genfromtxt, zeros, product, setdiff1d, arange, where, set_printoptions, unravel_index, tanh, savetxt
 from parameters import param
 from random import choice
 
@@ -101,16 +101,15 @@ def plot_inactivated_nodes(som, inact):
 	ax = fig.add_subplot(111, projection = '3d')
 	data = som.data
 	
+	# Just a fraction of data used for plotting
 	data = data[:,:3][::20]
-		
-	# plot data points	
 	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.4, label='data')
 	
-	# plot activated nodes in green
+	# Plot activated nodes in green
 	act_nod = w[act, :]
 	a = ax.plot(act_nod[:, 0], act_nod[:, 1], act_nod[:, 2], c='g', marker='o', alpha = 0.6, label='neurons', markersize=4)
 	
-	#plot inactivated nodes in red
+	# Plot inactivated nodes in red
 	in_w = w[inact, :]
 	i = ax.plot(in_w[:, 0], in_w[:, 1], in_w[:, 2], c='r', marker='o', alpha = 0.6, label='inact. neurons', markersize=6, linestyle='None')
 	plt.legend(numpoints=1)
@@ -129,18 +128,10 @@ def print_strongest_connections(hebb_weights):
 						map2X = k; map2Y = t;
 			string = "(" + str(map2X) + ", " + str(map2Y) + ")  "
 			sys.stdout.write(string)
-		print ''
-
-def predict_joints_configuration(hebb, hands):
-	"""
-	Preditcs coordinates of joints based on the Hebbian weights connecting
-	two SOMs
-	"""	
-	
-	return hands
-
+		print ''	
+			
 if __name__=="__main__":
-	nr_pts = 10000
+	nr_pts = 1000
 	path = get_path()
 
 	# get the coordinates learned during random motor babbling 
@@ -157,7 +148,8 @@ if __name__=="__main__":
 	coord_inact = where(inact.flatten()==0)[0]
 	print '%.0f%% of unactivated nodes'%(len(coord_inact)/product(som_hands.weights.shape[:2]) *100)
 		
-	plot_inactivated_nodes(som_joints, coord_inact)	
+	#plot_inactivated_nodes(som_joints, coord_inact)
+	plot_inactivated_nodes(som_hands, coord_inact)		
 		
 	# hebbian weights connecting maps
 	hebb = hebbian_learning(som_hands, som_joints)
@@ -165,6 +157,7 @@ if __name__=="__main__":
 	#print_strongest_connections(hebb)	
 	mse = 0
 	_, w = som_joints.get_weights()
+	unnorm = lambda x: x*som_joints.norm.ranges + som_joints.norm.mins
 	
 	for i in xrange(nr_pts):
 		idx = random.randint(0, len(som_hands.data)-1) # l(sh.d) == l(sj.d)
@@ -183,20 +176,35 @@ if __name__=="__main__":
 		sim_joints, q = get_similar_data(w, som_joints.data[idx, :])
 	
 		if 0:
-			print 'Data vector:', som_joints.data[idx, :]
-			print 'Hebb chosen vector:', joints
-			print 'Similar vectors:\n', 
-			for i, j in zip(sim_joints, q):
-				print i, j
+			print 'Data vector:', f(som_joints.data[idx, :])
+			print 'Hebb chosen vector:', f(joints)
+			#print 'Similar vectors:\n', 
+			#for i, j in zip(sim_joints, q):
+			#	print i, j
 		
 		dist = sum(som_joints.data[idx, :] - joints)
 		mse += sum((som_joints.data[idx, :] - joints)**2)
 		
 	print 'MSE', mse/nr_pts	
 	
-	# TODO
-	# Make data C++ ready: export normalized som_*.{data, weights} and 
-	# hebbian weights to a file read by naosom.cpp
+	## Prepare data for .csv file to be processed by C++ program
+	# Project weights into original data space
+	wh = Normalizer(som_hands.get_weights()[1]).minmax()
+	wh *= som_hands.norm.ranges
+	wh += som_hands.norm.mins
+	
+	wj = Normalizer(som_joints.get_weights()[1]).minmax()
+	wj *= som_joints.norm.ranges
+	wj += som_joints.norm.mins
+	
+	# Save SOM 1
+	savetxt('som1.csv', wh, delimiter=',')
+	
+	# Save SOM 2
+	savetxt('som2.csv', wj, delimiter=',')
+	
+	# Save Hebbian weights 
+	savetxt('hebb.csv', hebb, delimiter=',')
 	
 	
 	# Prediction flow (the most painless version): 
