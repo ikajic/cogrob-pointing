@@ -197,6 +197,10 @@ if __name__=="__main__":
 	wj *= som_joints.norm.ranges
 	wj += som_joints.norm.mins
 	
+	# Save data needed for simulation
+	savetxt('hands.csv', data['hands'], delimiter=',')
+	savetxt('joints.csv', data['joints'], delimiter=',') 
+	
 	# Save SOM 1
 	savetxt('som1.csv', wh, delimiter=',')
 	
