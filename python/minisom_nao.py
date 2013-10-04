@@ -10,7 +10,7 @@ import sys
 import os
 import pdb
 
-from minisom import MiniSom
+from minisom import MiniSom, Normalizer
 from similar_vec import get_similar_data
 
 #TODO
@@ -39,12 +39,18 @@ def read_data(path, nrpts=50):
 		nrpts - take each nrpts-th coordinate for training
 	"""
 	
-	hands = param['hands']
-	joints = param['joints']
+	cols_hands = param['hands']
+	cols_joints = param['joints']
+	
+	with open(path) as f:
+		hands = genfromtxt(f, dtype='f', skiprows=3, usecols=cols_hands)
+	
+	with open(path) as f:	
+		joints = genfromtxt(f, dtype='f', skiprows=3, usecols=cols_joints)
 		
 	data = {
-		'hands': genfromtxt(path, skiprows=3, usecols=hands)[:nrpts],
-		'joints': genfromtxt(path, skiprows=3, usecols=joints)[:nrpts]
+		'hands': hands[:nrpts],
+		'joints': joints[:nrpts]
 		}
 
 	return data 
@@ -131,6 +137,8 @@ def print_strongest_connections(hebb_weights):
 		print ''	
 			
 if __name__=="__main__":
+	save = '/home/ivana/knnl-0.1.4/knnl/source';
+
 	nr_pts = 1000
 	path = get_path()
 
@@ -197,24 +205,18 @@ if __name__=="__main__":
 	wj *= som_joints.norm.ranges
 	wj += som_joints.norm.mins
 	
-	# Save data needed for simulation
-	savetxt('hands.csv', data['hands'], delimiter=',')
-	savetxt('joints.csv', data['joints'], delimiter=',') 
 	
-	# Save SOM 1
-	savetxt('som1.csv', wh, delimiter=',')
+	if save:
+		# Save data needed for simulation
+		savetxt('hands.csv', data['hands'], delimiter=',')
+		savetxt('joints.csv', data['joints'], delimiter=',') 
+		
+		# Save SOM 1
+		savetxt('som1.csv', wh, delimiter=',')
 	
-	# Save SOM 2
-	savetxt('som2.csv', wj, delimiter=',')
+		# Save SOM 2
+		savetxt('som2.csv', wj, delimiter=',')
 	
-	# Save Hebbian weights 
-	savetxt('hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
-	
-	
-	# Prediction flow (the most painless version): 
-	# - get hand marker xyz coordinates
-	# - normalize
-	# - find the closest existing xyz point in KB  (!)
-	# - fetch the corresponding joints from hebb weights
-	# - send out motor command
+		# Save Hebbian weights 
+		savetxt('hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
 	
