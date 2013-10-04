@@ -1,6 +1,13 @@
-build
+# cpp and py files
 *.o
 *~
 *.pyc
-helper_scripts
-analysis
+
+# Data
+*.csv
+
+# Ignore folders
+build/
+helper_scripts/
+analysis/
+
