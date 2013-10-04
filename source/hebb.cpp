@@ -17,7 +17,7 @@ typedef v_f::const_iterator v_f_it;
 
 
 /* 
-Functions used for debugging purposes
+Functions used for debugging
 */
 void debug_info(string info, vector <float> w, int dim){
 	cout << info << endl;
@@ -170,26 +170,31 @@ int main(){
 	
 	for (int i = 0; i < nr_runs; i+=offset){
 		v_f hands = get_row(d_hands, i, d1);
-		if (shw_dbg)
-			debug_print_vector(hands);
+		v_f true_joints = get_row(d_joints, i, d2);
 		
-		// 1D idx of act neuron in the first network
-		int win1 =  get_winning_node(hands, w1, d1); 
+		// 1D idx of act. neuron in the first network
+		int win1 = get_winning_node(hands, w1, d1); 
 
 		// Let's see how close we get...
-		if (0) {
+		if (shw_dbg) {
+			v_f node = get_row(w1, win1, d1);
+			cout << "Diff neuron and hand conf:" << euclid_dist(node, hands) << endl;
 			debug_print_vector(hands);
-			debug_print_vector(get_row(w1, win1, d1));
-			cout << endl;
+			debug_print_vector(node);
 		}
 
 		// 1D idx of a neuron in the second network
 		int win2 = get_strongest_connection(win1, hebb, w1.size()/d1); 
-		cout << win2 << endl;
 		
 		// Winning neuron's weights
 		v_f joints = get_row(w2, win2, d2);
-		debug_print_vector(joints);
+		
+		if (shw_dbg) {
+			cout << "Err joint conf: " << euclid_dist(true_joints, joints) << endl;
+			debug_print_vector(true_joints);
+			debug_print_vector(joints);
+			cout << endl;
+		}
 		//move_joints(joints);
 	} 
 	
