@@ -115,6 +115,21 @@ int get_winning_node(v_f data, v_f weights, int dim){
 	return idx;
 }
 
+int get_strongest_connection(const int w, v_f hebb, const int n){
+	const int offset = w*n; 
+	int idx = 0;
+	float max_w = -1;
+	v_f_it iter = hebb.begin()+offset;
+	
+	for(int i = 0; i < n; ++i){
+		if (*(iter + i) > max_w){
+			max_w = *(iter + i);
+			idx = i;
+		}
+	}
+	
+	return idx;
+}
 
 int main(){
 	const int nr_rows = 7;
@@ -149,32 +164,35 @@ int main(){
 	v_f d_hands, d_joints;
 	d_hands = read_csv("hands.csv");
 	d_joints = read_csv("joints.csv");
-	cout << d_hands.size() << endl;
-	cout << d_joints.size() << endl;	
 	
-	int nr_runs = 50000;
-	for (int i = 0; i < nr_runs; i+=200){
+	const int nr_runs = 50000;
+	const int offset = 500;
+	
+	for (int i = 0; i < nr_runs; i+=offset){
 		v_f hands = get_row(d_hands, i, d1);
 		if (shw_dbg)
 			debug_print_vector(hands);
 		
-		int win1 =  get_winning_node(hands, w1, d1); // 1D idx of act neuron
-		
+		// 1D idx of act neuron in the first network
+		int win1 =  get_winning_node(hands, w1, d1); 
+
 		// Let's see how close we get...
-		if 0:
+		if (0) {
 			debug_print_vector(hands);
 			debug_print_vector(get_row(w1, win1, d1));
 			cout << endl;
+		}
+
+		// 1D idx of a neuron in the second network
+		int win2 = get_strongest_connection(win1, hebb, w1.size()/d1); 
+		cout << win2 << endl;
 		
-		//int winner2 = find_strongest(winner1, hebb); // 1D coordinate of of activated neuron in SOM 2
-		//v_f joints = w2[w1*nr_rows*d_som2+w2*d_som2]
+		// Winning neuron's weights
+		v_f joints = get_row(w2, win2, d2);
+		debug_print_vector(joints);
 		//move_joints(joints);
 	} 
 	
-	//cout << d_hands[1] << endl;
-	//int idx = 2*7*3+4*3;
-	//cout << w1[idx] << " " << w1[idx+1] << " " << w1[idx+2] << endl;
-	//cout << w2[idx] << " " << w2[idx+1] << " " << w2[idx+2] << endl;
 
     return 0;
 }

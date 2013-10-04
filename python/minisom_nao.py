@@ -76,9 +76,10 @@ def hebbian_learning(som1, som2):
 	hebb = zeros((param['nr_rows'], param['nr_cols'], \
 		param['nr_rows'], param['nr_cols']))
 	
+	# minisom uses distances as activations, here we use sigmoid over distances
+	# to get activations for hebbian learning
 	f = lambda x: 1/(1+tanh(x))
 	for dp1, dp2 in zip(som1.data, som2.data):
-		#pdb.set_trace()
 		act1 = som1.activate(dp1)
 		act2 = som2.activate(dp2)
 				
@@ -184,8 +185,8 @@ if __name__=="__main__":
 		sim_joints, q = get_similar_data(w, som_joints.data[idx, :])
 	
 		if 0:
-			print 'Data vector:', f(som_joints.data[idx, :])
-			print 'Hebb chosen vector:', f(joints)
+			print 'Data vector:', unnorm(som_joints.data[idx, :])
+			print 'Hebb chosen vector:', unnorm(joints)
 			#print 'Similar vectors:\n', 
 			#for i, j in zip(sim_joints, q):
 			#	print i, j
