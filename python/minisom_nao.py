@@ -3,12 +3,15 @@ from __future__ import division
 from numpy import genfromtxt, zeros, product, setdiff1d, arange, where, set_printoptions, unravel_index, tanh, savetxt
 from parameters import param
 from random import choice
+from time import strftime
+
 
 import plot_som as ps
 import random
 import sys
 import os
 import pdb
+import json
 
 from minisom import MiniSom, Normalizer
 from similar_vec import get_similar_data
@@ -43,10 +46,10 @@ def read_data(path, nrpts=50):
 	cols_joints = param['joints']
 	
 	with open(path) as f:
-		hands = genfromtxt(f, dtype='f', skiprows=3, usecols=cols_hands)
+		hands = genfromtxt(f, dtype='f', skiprows=2, usecols=cols_hands)
 	
 	with open(path) as f:	
-		joints = genfromtxt(f, dtype='f', skiprows=3, usecols=cols_joints)
+		joints = genfromtxt(f, dtype='f', skiprows=2, usecols=cols_joints)
 		
 	data = {
 		'hands': hands[:nrpts],
@@ -90,14 +93,16 @@ def hebbian_learning(som1, som2):
 		
 	return hebb
 
-
-# useful plotting, TODO extract to plot som
-def plot(som_hands, som_joints):
+def plot_and_save(savepath, som_hands, som_joints):
+	nrpts = 50
 	wi_0, w_0 = som_hands.get_weights()	
 	wi_1, w_1 = som_joints.get_weights()
 
-	ps.plot_3d(final_som=w_0, data=som_hands.data, init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
-	ps.plot_3d(final_som=w_1, data=som_joints.data, init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
+	ps.plot_3d(final_som=w_0, data=som_hands.data[::nrpts, :], init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
+	plt.savefig(savepath + 'som_hands.png')
+	
+	ps.plot_3d(final_som=w_1, data=som_joints.data[::nrpts, :], init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
+	plt.savefig(savepath + 'som_joints.png')
 
 
 def plot_inactivated_nodes(som, inact):
@@ -138,9 +143,19 @@ def print_strongest_connections(hebb_weights):
 		print ''	
 			
 if __name__=="__main__":
-	save = '/home/ivana/knnl-0.1.4/knnl/source';
-
-	nr_pts = 1000
+	save = False
+	basepath = 'naoconf/'
+	dirname = strftime("%m_%d-%H_%M_%S")
+	savepath = basepath + dirname + '/'
+	
+	os.mkdir(savepath)
+	
+	# redirect output to file for saving
+	saveout = sys.stdout
+	f = open(savepath + 'out.log', 'w')
+	sys.stdout = f
+	
+	nr_pts = 50000
 	path = get_path()
 
 	# get the coordinates learned during random motor babbling 
@@ -152,7 +167,8 @@ if __name__=="__main__":
 	
 	print "Using %d data points for training"%(som_hands.data.shape[0])
 	
-	#plot(som_hands, som_joints)
+	plot_and_save(savepath, som_hands, som_joints)
+	
 	inact = som_hands.activation_response(som_hands.data)
 	coord_inact = where(inact.flatten()==0)[0]
 	print '%.0f%% of unactivated nodes'%(len(coord_inact)/product(som_hands.weights.shape[:2]) *100)
@@ -205,19 +221,22 @@ if __name__=="__main__":
 	wj = Normalizer(som_joints.get_weights()[1]).minmax()
 	wj *= som_joints.norm.ranges
 	wj += som_joints.norm.mins
+
+	sys.stdout = saveout
+	f.close()
 	
+	### Save
 	
-	if save:
-		# Save data needed for simulation
-		savetxt('hands.csv', data['hands'], delimiter=',')
-		savetxt('joints.csv', data['joints'], delimiter=',') 
-		
-		# Save SOM 1
-		savetxt('som1.csv', wh, delimiter=',')
+	# Simulation parameters
+	with open(savepath + 'param.json', 'w') as f:
+		json.dump(param, f)
 	
-		# Save SOM 2
-		savetxt('som2.csv', wj, delimiter=',')
-	
-		# Save Hebbian weights 
-		savetxt('hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
+	# Save SOM 1
+	savetxt(savepath + 'som1.csv', wh, delimiter=',')
+
+	# Save SOM 2
+	savetxt(savepath + 'som2.csv', wj, delimiter=',')
+
+	# Save Hebbian weights 
+	savetxt(savepath + 'hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
 	
