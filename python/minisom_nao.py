@@ -93,16 +93,16 @@ def hebbian_learning(som1, som2):
 		
 	return hebb
 
-def plot_and_save(savepath, som_hands, som_joints):
+def plot_and_save(som_hands, som_joints, savepath=''):
 	nrpts = 50
 	wi_0, w_0 = som_hands.get_weights()	
 	wi_1, w_1 = som_joints.get_weights()
 
 	ps.plot_3d(final_som=w_0, data=som_hands.data[::nrpts, :], init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
-	plt.savefig(savepath + 'som_hands.png')
+	if savepath: plt.savefig(savepath + 'som_hands.png')
 	
 	ps.plot_3d(final_som=w_1, data=som_joints.data[::nrpts, :], init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
-	plt.savefig(savepath + 'som_joints.png')
+	if savepath: plt.savefig(savepath + 'som_joints.png')
 
 
 def plot_inactivated_nodes(som, inact):
@@ -143,17 +143,19 @@ def print_strongest_connections(hebb_weights):
 		print ''	
 			
 if __name__=="__main__":
-	save = False
-	basepath = 'naoconf/'
-	dirname = strftime("%m_%d-%H_%M_%S")
-	savepath = basepath + dirname + '/'
+	save = True
+	savepath=''
 	
-	os.mkdir(savepath)
+	if save:
+		basepath = 'naoconf/'
+		dirname = strftime("%m_%d-%H_%M_%S")
+		savepath = basepath + dirname + '/'
+		os.mkdir(savepath)
 	
-	# redirect output to file for saving
-	saveout = sys.stdout
-	f = open(savepath + 'out.log', 'w')
-	sys.stdout = f
+		# redirect output to file for saving
+		saveout = sys.stdout
+		f = open(savepath + 'out.log', 'w')
+		sys.stdout = f
 	
 	nr_pts = 50000
 	path = get_path()
@@ -167,7 +169,7 @@ if __name__=="__main__":
 	
 	print "Using %d data points for training"%(som_hands.data.shape[0])
 	
-	plot_and_save(savepath, som_hands, som_joints)
+	plot_and_save(som_hands, som_joints, savepath)
 	
 	inact = som_hands.activation_response(som_hands.data)
 	coord_inact = where(inact.flatten()==0)[0]
@@ -212,7 +214,6 @@ if __name__=="__main__":
 		
 	print 'MSE', mse/nr_pts	
 	
-	## Prepare data for .csv file to be processed by C++ program
 	# Project weights into original data space
 	wh = Normalizer(som_hands.get_weights()[1]).minmax()
 	wh *= som_hands.norm.ranges
@@ -221,22 +222,23 @@ if __name__=="__main__":
 	wj = Normalizer(som_joints.get_weights()[1]).minmax()
 	wj *= som_joints.norm.ranges
 	wj += som_joints.norm.mins
+	
+	if save:
+		sys.stdout = saveout
+		f.close()
+	
+		### Save
+	
+		# Simulation parameters
+		with open(savepath + 'param.json', 'w') as f:
+			json.dump(param, f)
+	
+		# Save SOM 1
+		savetxt(savepath + 'som1.csv', wh, delimiter=',')
 
-	sys.stdout = saveout
-	f.close()
-	
-	### Save
-	
-	# Simulation parameters
-	with open(savepath + 'param.json', 'w') as f:
-		json.dump(param, f)
-	
-	# Save SOM 1
-	savetxt(savepath + 'som1.csv', wh, delimiter=',')
+		# Save SOM 2
+		savetxt(savepath + 'som2.csv', wj, delimiter=',')
 
-	# Save SOM 2
-	savetxt(savepath + 'som2.csv', wj, delimiter=',')
+		# Save Hebbian weights 
+		savetxt(savepath + 'hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
 
-	# Save Hebbian weights 
-	savetxt(savepath + 'hebb.csv', hebb.reshape(wh.shape[0], wj.shape[0]), delimiter=',')
-	
