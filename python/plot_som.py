@@ -51,16 +51,24 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	ax = fig.add_subplot(111, projection = '3d')
 	
 	if data.shape[1] > 3:
-		print "Truncating %d dimensions to 3 for plotting" % (data.shape[1])
+		print "Truncating %d dimensions to 3d for plotting" % (data.shape[1])
 		data = data[:,:3]
 
 	if init_som is not None:
+		# plot initial nodes
 		ax.plot(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o', label='init', linestyle='None', alpha=0.6, markersize=3)
 		
-	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='*', linestyle='None', alpha=0.4, label='data', markersize=10)
+	# plot data
+	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='o', linestyle='None', alpha=0.15, label='data', markersize=5)
+	
+	# plot nodes after the training
 	n = ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.6, label='neurons', markersize=4)
 	
 	ax.legend(numpoints=1)
+	ax.xaxis.set_label('x')
+	ax.yaxis.set_label('y')
+	ax.zaxis.set_label('z')
+		
 	fig.suptitle(title)
 
 def show():

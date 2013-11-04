@@ -3,10 +3,10 @@ param = {
 	'hands': (2,3,4),
 	'joints': (7,8,9,10),
 	'nr_epochs': 10000,
-	'nr_rows': 10,
-	'nr_cols': 10,
-	'sigma': 0.3, 
+	'nr_rows': 5,
+	'nr_cols': 5,
+	'sigma': 0.4, 
 	'learning_rate': 0.7,
-	'n_to_plot': 100,
+	'n_to_plot': 400,
 	'eta': 0.01
 	} 

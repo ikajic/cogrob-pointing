@@ -93,15 +93,14 @@ def hebbian_learning(som1, som2):
 		
 	return hebb
 
-def plot_and_save(som_hands, som_joints, savepath=''):
-	nrpts = 50
+def plot_and_save(som_hands, som_joints, savepath='', offset=50):
 	wi_0, w_0 = som_hands.get_weights()	
 	wi_1, w_1 = som_joints.get_weights()
 
-	ps.plot_3d(final_som=w_0, data=som_hands.data[::nrpts, :], init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
+	ps.plot_3d(final_som=w_0, data=som_hands.data[::offset, :], init_som=wi_0, nr_nodes=param['n_to_plot'], title='SOM Hands')
 	if savepath: plt.savefig(savepath + 'som_hands.png')
 	
-	ps.plot_3d(final_som=w_1, data=som_joints.data[::nrpts, :], init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
+	ps.plot_3d(final_som=w_1, data=som_joints.data[::offset, :], init_som=wi_1, nr_nodes=param['n_to_plot'], title='SOM Joints')
 	if savepath: plt.savefig(savepath + 'som_joints.png')
 
 
@@ -157,7 +156,7 @@ if __name__=="__main__":
 		f = open(savepath + 'out.log', 'w')
 		sys.stdout = f
 	
-	nr_pts = 50000
+	nr_pts = 70000
 	path = get_path()
 
 	# get the coordinates learned during random motor babbling 
@@ -169,7 +168,8 @@ if __name__=="__main__":
 	
 	print "Using %d data points for training"%(som_hands.data.shape[0])
 	
-	plot_and_save(som_hands, som_joints, savepath)
+	plot_and_save(som_hands, som_joints, savepath, offset=2)
+	plt.show()
 	
 	inact = som_hands.activation_response(som_hands.data)
 	coord_inact = where(inact.flatten()==0)[0]
