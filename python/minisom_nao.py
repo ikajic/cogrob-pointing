@@ -200,7 +200,7 @@ if __name__=="__main__":
 		# get its weights
 		joints = som_joints.weights[win_2[0], win_2[1], :]
 		
-		sim_joints, q = get_similar_data(w, som_joints.data[idx, :])
+		sim_joints, q, _ = get_similar_data(w, som_joints.data[idx, :])
 	
 		if 0:
 			print 'Data vector:', unnorm(som_joints.data[idx, :])
