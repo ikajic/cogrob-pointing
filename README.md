@@ -1,11 +1,11 @@
-Using humanoid robot Nao to investigate the cognitive development of pointing behavior
-===
+### Using humanoid robot Nao to investigate the cognitive development of pointing behavior
+
 
 We used a humanoid robot Nao and a biologically plausible framework for investigation 
 of pointing behavior. 
 First, the robot explored the environment through random motor babbling. 
 The sensory values such as hand and joint coordinates were stored in a knowledge base.
-These values were used to train self-organizing maps (SOMs) and connect them using 
+These values were used to train self-organizing maps (SOMs) and we learned weights between them using 
 Hebbian learning paradigm. 
 
 The structure of the code is following:
