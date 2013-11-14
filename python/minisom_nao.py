@@ -46,10 +46,10 @@ def read_data(path, nrpts=50):
 	cols_joints = param['joints']
 	
 	with open(path) as f:
-		hands = genfromtxt(f, dtype='f', skiprows=2, usecols=cols_hands)
+		hands = genfromtxt(f, dtype='f', skip_header=2, usecols=cols_hands)
 	
 	with open(path) as f:	
-		joints = genfromtxt(f, dtype='f', skiprows=2, usecols=cols_joints)
+		joints = genfromtxt(f, dtype='f', skip_header=2, usecols=cols_joints)
 		
 	data = {
 		'hands': hands[:nrpts],

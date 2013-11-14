@@ -70,6 +70,8 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	ax.zaxis.set_label('z')
 		
 	fig.suptitle(title)
+	
+	return ax
 
 def show():
 	plt.show()

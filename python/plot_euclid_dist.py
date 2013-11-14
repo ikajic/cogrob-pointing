@@ -17,7 +17,7 @@ def create_all(missing):
 		hands = row[1:4]	
 		joints = row[9:13]
 		distances = map(lambda x: np.linalg.norm(x-hands), kb[:, :3])	
-		idx = argmin(distances)
+		idx = np.argmin(distances)
 		f_all[i, :] = np.r_[row[:8], 
 							kb[idx, 3:], 
 							joints, 
@@ -25,9 +25,9 @@ def create_all(missing):
 							
 	return f_all
 
-#b = create_all(b)
-#a = create_all(a)
-#i = create_all(i)
+b = create_all(b)
+a = create_all(a)
+i = create_all(i)
 	
 for idx, lab in zip([7, 16], ['hands', 'joints']):
 
@@ -38,8 +38,6 @@ for idx, lab in zip([7, 16], ['hands', 'joints']):
 	avg_b = d_avg(b)
 	avg_i = d_avg(i)
 	avg_a = d_avg(a) 
-
-	#plt.figure()
 
 	plt.figure()
 	plt.title('Euclidian distances for predicted and true ' + lab + ' coordinates')
@@ -54,5 +52,6 @@ for idx, lab in zip([7, 16], ['hands', 'joints']):
 
 	plt.xlabel('Time [0.5 s]')
 	plt.legend()
+	plt.show()
 
 plt.show()
