@@ -1,0 +1,1 @@
+/home/ivana/NAO/NaoTH-2011-InternalModels/trunk/NaoTHSoccer/Source/Core/Cognition/Modules/Experiment/NewModule
