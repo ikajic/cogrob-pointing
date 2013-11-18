@@ -4,8 +4,6 @@
 *.pyc
 *.pkl
 
-# Data
-*.csv
 
 # Ignore folders
 build/
