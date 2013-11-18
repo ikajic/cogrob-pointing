@@ -65,9 +65,9 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	n = ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.6, label='neurons', markersize=4)
 	
 	ax.legend(numpoints=1)
-	ax.xaxis.set_label('x')
-	ax.yaxis.set_label('y')
-	ax.zaxis.set_label('z')
+	ax.xaxis.set_label_text('x')
+	ax.yaxis.set_label_text('y')
+	ax.zaxis.set_label_text('z')
 		
 	fig.suptitle(title)
 	
