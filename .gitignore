@@ -3,11 +3,3 @@
 *~
 *.pyc
 
-# Data
-*.csv
-
-# Ignore folders
-build/
-helper_scripts/
-analysis/
-naoconf/
