@@ -169,7 +169,7 @@ if __name__=="__main__":
     
     if save:
         defstream.close()        
-        savestr = zip(['som1.csv',' som2.csv', 'hebb.csv'],
+        savestr = zip(['som1.csv','som2.csv', 'hebb.csv'],
                        [wh, wj, hebb.reshape(wh.shape[0], wj.shape[0])])
 
         # Save weights
