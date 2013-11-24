@@ -45,6 +45,8 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	'''
 	3D plot of input data, initial positions of neurons and positions of neurons after training.
 	If data have more than 3 dimensions, plot only the first three.
+	@param final_som np.array
+	@param data np.array
 	'''
 
 	fig = plt.figure()

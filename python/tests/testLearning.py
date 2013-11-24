@@ -4,13 +4,13 @@ import minisom_nao
 import pdb
 import random
 
-from similar_vec import get_similar_data
+from similar_vec import get_similar_vector
 
 
 class TestSOMs(unittest.TestCase):
 	
 	def setUp(self):
-		path = "/home/ivana/babbling_KB_left_arm.dat" 
+		path = "../data/34min_65k.dat" 
 		data = minisom_nao.read_data(path)
 		self.som_hands = minisom_nao.train_som(data['hands'][:10])
 		self.som_joints = minisom_nao.train_som(data['joints'][:10])
