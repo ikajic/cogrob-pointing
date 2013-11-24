@@ -133,42 +133,34 @@ if __name__=="__main__":
     if save_nets: 
         dirname = "%dx%d_%d_%s%d"%(n_size, n_size, epochs, mode, p_train)   
         savepath = makeDirs(dirname)
-        defstream = open(savepath + 'out.log', 'w')
+        if (savepath):       
+            defstream = open(savepath + 'out.log', 'w')
+        else:
+            print "Ok, I ain't savin' anythin!"
+            save_nets = 0
         
-    train_path = '../data/longer_left.dat'
+    train_path = '../data/42min_85k.dat'
     train_data = read_data(train_path, p_train, mode)
 
     som_hands = train_som(train_data['hands'])
-    som_hands.project_weights()
-    
     som_joints = train_som(train_data['joints'])
-    som_joints.project_weights()
     
     defstream.write("Using %d (%s) data points for training. \n" % (som_hands.data.shape[0], mode))
     plot_and_save(som_hands, som_joints, savepath, param, offset=1)
     print "Done plotting!"
-    #assert 0==1
     
     dbg_print_inact(som_hands, som_joints, defstream)      
         
     # hebbian weights connecting maps
     hebb = hebbian_learning(som_hands, som_joints)
     defstream.write("Learned Hebbian weights.\n")
-
     
     if save_nets:
-        # Project weights into original data space
-        wh = Normalizer(som_hands.get_weights()[1]).minmax()
-        wh *= som_hands.norm.ranges
-        wh += som_hands.norm.mins
-        
-        wj = Normalizer(som_joints.get_weights()[1]).minmax()
-        wj *= som_joints.norm.ranges
-        wj += som_joints.norm.mins
-        
         defstream.close()        
         savestr = zip(['som1.csv','som2.csv', 'hebb.csv'],
-                       [wh, wj, hebb.reshape(wh.shape[0], wj.shape[0])])
+                       [som_hands.get_weights()[1], 
+                        som_joints.get_weights()[1], 
+                        hebb.reshape(n_size*n_size, n_size*n_size)])
 
         # Save weights
         for fname, dat in savestr:
