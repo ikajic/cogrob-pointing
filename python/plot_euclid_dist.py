@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_rel
 
 # TODO: use numpy arrays to read in and handle columns from csv files
 
@@ -22,8 +22,8 @@ def update_table(missing):
 
 if __name__=="__main__":
 
-    basepath = "../experiments/new_soms_3sec_adv/"
-    kbpath = "/home/ivana/babbling_KB_left_arm.dat"
+    basepath = "../experiments/new/"
+    #kbpath = "/home/ivana/babbling_KB_left_arm.dat"
 
     # Load coordinates obtained during the pointing experiment
     b = np.genfromtxt(basepath + 'out_b.csv', dtype=np.float, skiprows=1, delimiter=',')
@@ -31,8 +31,8 @@ if __name__=="__main__":
     a = np.genfromtxt(basepath + 'out_a.csv', dtype=np.float, skiprows=1, delimiter=',')
 
     # Load the knowledge base from the babbling phase
-    with open(kbpath) as dat:
-	    kb = np.genfromtxt(dat, dtype=np.float, skip_header=2, usecols=(2,3,4,7,8,9,10))
+    #with open(kbpath) as dat:
+	#    kb = np.genfromtxt(dat, dtype=np.float, skip_header=2, usecols=(2,3,4,7,8,9,10))
 
     if 0:
         b = update_table(b)
@@ -43,10 +43,13 @@ if __name__=="__main__":
     # Hands euclidian distances: column 7
     # Joints euclidian distances: column 16
     skip_begin = 0
-    a = a[skip_begin:, :]
-    b = b[skip_begin:, :]
-    i = i[skip_begin:, :]
-    for idx, lab in zip([7, 16], ['hands', 'joints']):
+    a = a[skip_begin:, :]#/np.nanmax(a[skip_begin:, :])
+    b = b[skip_begin:, :]#/np.nanmax(b[skip_begin:, :])
+    i = i[skip_begin:, :]#/np.nanmax(i[skip_begin:, :])
+    
+    err_idx = [7]
+    err_lab = ['hands']
+    for idx, lab in zip(err_idx, err_lab):
 	    d_avg = lambda x: np.ones(x.shape[0])*np.mean(x[:, idx]) # euclid dist is at pos 8
 	    avg_b = d_avg(b)
 	    avg_i = d_avg(i)
@@ -54,20 +57,25 @@ if __name__=="__main__":
 
 	    plt.figure()
 	    plt.title('Euclidian distances for predicted and true ' + lab + ' coordinates')
-	    plt.plot(a[:, idx], color='b', label='adv')
+	    plt.plot(a[skip_begin:, idx], color='b', label='adv')
 	    plt.plot(avg_a, color='b', alpha=0.3)
 
-	    plt.plot(b[:, idx], color='r', label='begin')
+	    plt.plot(b[skip_begin:, idx], color='r', label='begin')
 	    plt.plot(avg_b, color='r', alpha=0.3)
 
-	    plt.plot(i[:, idx], color='g', label='int')
+	    plt.plot(i[skip_begin:, idx], color='g', label='int')
 	    plt.plot(avg_i, color='g', alpha=0.3)
 
 	    plt.xlabel('Time [0.5 s]')
 	    plt.legend()
 
-    print 'BEG-INT', ttest_ind(b[:, 7], i[:, 7])
-    print 'INT-ADV', ttest_ind(i[:, 7], a[:, 7])
-    print 'ADV-BEG', ttest_ind(a[:, 7], b[:, 7])
-
+    print 'Avg errors and stds'
+    print 'beg:', np.mean(b[:, 7]), np.std(b[:, 7])
+    print 'int:', np.mean(i[:, 7]), np.std(i[:, 7])
+    print 'adv:', np.mean(a[:, 7]), np.std(a[:, 7])
+    
+    print 'BEG-INT', ttest_rel(b[:, 7], i[:, 7])
+    print 'INT-ADV', ttest_rel(i[:, 7], a[:, 7])
+    print 'ADV-BEG', ttest_rel(a[:, 7], b[:, 7])
+    plt.savefig(basepath+"error_hands.png")
     plt.show()

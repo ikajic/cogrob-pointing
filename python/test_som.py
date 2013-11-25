@@ -105,11 +105,11 @@ def table_print_errors(errors, somconfs):
     print_table(table.tolist())
 
 if __name__=="__main__":
-    test_path = "../data/34min_64k.dat"
+    test_path = "../data/r_29min_58k.dat"
     
     # 100 as argument means use 100% of data in *.dat folder
     test_data = read_data(test_path, 100, 'u')['hands']
-
+    """
     somconfs = ("5x5_20000_f1",
                 "5x5_20000_f10",
                 "5x5_20000_u10",
@@ -122,9 +122,10 @@ if __name__=="__main__":
                 "15x15_20000_f10",
                 "15x15_20000_u10",
                 "15x15_20000_u100")
-
-    err1 = different_test_sets(somconfs, nr_trials=2)
-    #errors = prediction_errors(test_data, somconfs)    
+    """
+    somconfs = ("5x5_20000_u100", "10x10_20000_u100", "15x15_20000_u100")
+    #err1 = different_test_sets(somconfs, nr_trials=2)
+    errors = prediction_errors(test_data, somconfs)    
     
     table_print_errors(errors)
 

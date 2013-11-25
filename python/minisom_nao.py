@@ -7,6 +7,7 @@ from time import strftime
 
 import cPickle as pickle
 import json
+import pdb
 import os
 import pdb
 import random
@@ -88,7 +89,7 @@ def hebbian_learning(som1, som2):
 
             
 def makeDirs(dirname):
-    basePath = '/home/ivana/workspace/pointingNao/python/somconf/' + dirname + '/'
+    basePath = './somconf/' + dirname + '/'
     overwrite = True
     
     if os.path.exists(basePath):
@@ -139,7 +140,7 @@ if __name__=="__main__":
             print "Ok, I ain't savin' anythin!"
             save_nets = 0
         
-    train_path = '../data/42min_85k.dat'
+    train_path = '../data/r_29min_58k.dat'
     train_data = read_data(train_path, p_train, mode)
 
     som_hands = train_som(train_data['hands'])
