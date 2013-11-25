@@ -10,10 +10,10 @@ from similar_vec import get_similar_vector
 class TestSOMs(unittest.TestCase):
 	
 	def setUp(self):
-		path = "../data/34min_65k.dat" 
-		data = minisom_nao.read_data(path)
-		self.som_hands = minisom_nao.train_som(data['hands'][:10])
-		self.som_joints = minisom_nao.train_som(data['joints'][:10])
+		path = "../../data/r_37min_74k.dat" 
+		data = minisom_nao.read_data(path, 1 ,'f')
+		self.som_hands = minisom_nao.train_som(data['hands'])
+		self.som_joints = minisom_nao.train_som(data['joints'])
 	
 	def testWeightRanges(self):
 		"""
@@ -47,8 +47,8 @@ class TestSOMs(unittest.TestCase):
 		# check if closest neurons are really the closest ones
 		est = np.zeros((npoints, self.som_hands.data.shape[1]))
 		for i, dp in enumerate(closest_dps):
-			v, q = get_similar_data(w, dp, eta=0.2)
-			est[i, :] = v[0]
+			v, _, _ = get_similar_vector(w, dp)
+			est[i, :] = v
 
 		np.testing.assert_array_almost_equal(est, true, decimal=4)
 		
@@ -69,8 +69,8 @@ class TestSOMs(unittest.TestCase):
 		# check if closest neurons are really the closest ones
 		est = np.zeros((npoints, self.som_joints.data.shape[1]))
 		for i, dp in enumerate(closest_dps):
-			v, q = get_similar_data(w, dp, eta=0.2)
-			est[i, :] = v[0]
+			v, _, _ = get_similar_vector(w, dp)
+			est[i, :] = v
 
 		np.testing.assert_array_almost_equal(est, true, decimal=4)	
 		
@@ -89,12 +89,12 @@ class TestSOMs(unittest.TestCase):
 		a_w = w[act, :]
 
 		for i, dp in enumerate(self.som_hands.data):
-			s, _ = get_similar_data(w, dp)
+			s, _ = get_similar_vector(w, dp)
 			
 			# make sure the closest vector is not in i_w
 			# too many for loops here.. ugly!
-			_, qi = get_similar_data(i_w, s[0])
-			_, qa = get_similar_data(a_w, s[0])
+			_, qi, _ = get_similar_vector(i_w, s[0])
+			_, qa, _ = get_similar_vector(a_w, s[0])
 			self.assertGreater(qi[0], qa[0])
 				
 if __name__ == "__main__":

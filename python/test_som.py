@@ -123,7 +123,7 @@ if __name__=="__main__":
                 "15x15_20000_u10",
                 "15x15_20000_u100")
     """
-    somconfs = ("5x5_20000_u100", "10x10_20000_u100", "15x15_20000_u100")
+    somconfs = ("5x5_20000_u10", "10x10_20000_u10", "15x15_20000_u10")
     #err1 = different_test_sets(somconfs, nr_trials=2)
     errors = prediction_errors(test_data, somconfs)    
     
