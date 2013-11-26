@@ -7,8 +7,8 @@ import random
 class TestHebb(unittest.TestCase):
 	
 	def setUp(self):
-		path = "/home/ivana/babbling_KB_left_arm.dat" 
-		data = minisom_nao.read_data(path)
+		path = "../../data/r_37min_74k.dat" 
+		data = minisom_nao.read_data(path, 100)
 		self.som_hands = minisom_nao.train_som(data['hands'])
 		self.som_joints = minisom_nao.train_som(data['joints'])
 		self.hebb = minisom_nao.hebbian_learning(self.som_hands, \
@@ -36,8 +36,8 @@ class TestHebb(unittest.TestCase):
 				joints = self.som_joints.weights[win_2[0], win_2[1], :]
 				joints_random = random.choice(random.choice(self.som_joints.weights))
 		
-				mseHebb += sum((self.som_joints.data[idx, :] - joints)**2)
-				mseRand += sum((self.som_joints.data[idx, :] - joints_random)**2)
+				mseHebb += np.linalg.norm(self.som_joints.data[idx, :] - joints)
+				mseRand += np.linalg.norm(self.som_joints.data[idx, :] - joints_random)
 			all_hebb_better.append(mseHebb < mseRand)
 		
 		self.assertTrue(all(all_hebb_better))

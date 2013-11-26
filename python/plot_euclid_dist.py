@@ -22,7 +22,7 @@ def update_table(missing):
 
 if __name__=="__main__":
 
-    basepath = "../experiments/new/"
+    basepath = "../experiments/adv/"
     #kbpath = "/home/ivana/babbling_KB_left_arm.dat"
 
     # Load coordinates obtained during the pointing experiment

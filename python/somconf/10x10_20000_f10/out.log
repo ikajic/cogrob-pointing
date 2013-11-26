@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 Using 8584 (f) data points for training. 
+=======
+Using 7414 (f) data points for training. 
+>>>>>>> 875a3e421cd4fd2c463d7978d6002656ae8c4a1e
 Hands: 0% of unactivated nodes
 Joints: 0% of unactivated nodes
 Learned Hebbian weights.
