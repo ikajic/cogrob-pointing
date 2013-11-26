@@ -90,7 +90,7 @@ def table_print_errors(errors, somconfs):
     @param errors: np.array
     @param somconfs: list of directories containing SOM configurations with soms.pkl files
     """
-    print "SOM index \t SOM conf "
+    print "-SOM index \t SOM conf "
     for i, label in enumerate(somconfs):
         print str(i).center(10),"\t",label
 
@@ -99,9 +99,9 @@ def table_print_errors(errors, somconfs):
     for i in np.arange(1, table.shape[0]):
         table[i, 0] = table[0, i] = i-1
         for j in np.arange(i+1, table.shape[0]):
-            err = "%.2f"%ttest_rel(errors[i-1, :], errors[j-1, :])[1]
+            err = "%.3f"%ttest_rel(errors[i-1, :], errors[j-1, :])[1]
             table[i,j] = err
-
+    print 'T-test p-values'
     print_table(table.tolist())
 
 if __name__=="__main__":
