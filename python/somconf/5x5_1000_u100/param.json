@@ -1,0 +1,1 @@
+{"nrpts": 50, "eta": 0.01, "nr_cols": 5, "hands": [0, 1, 2], "joints": [3, 4, 5, 6], "learning_rate": 0.9, "nr_epochs": 1000, "sigma": 0.7, "n_to_plot": 400, "nr_rows": 5}
