@@ -29,7 +29,7 @@ def plot_ed_over_time(coords, labs):
 
 if __name__=="__main__":
 
-    exp_path = "../experiments/nao/bigger_map2/out_"
+    exp_path = "../experiments/nao/bigger_map_100ms/out_"
 
     # Load coordinates obtained during the pointing experiment
     labs = ['b100', 'b10', 's100', 's10']

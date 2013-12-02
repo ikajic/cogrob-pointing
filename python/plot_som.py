@@ -61,15 +61,19 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 		ax.plot(init_som[:nr_nodes,0], init_som[:nr_nodes,1], init_som[:nr_nodes,2], c='g', marker='o', label='init', linestyle='None', alpha=0.6, markersize=3)
 		
 	# plot data
-	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='o', linestyle='None', alpha=0.15, label='data', markersize=5)
+	d = ax.plot(data[:, 0], data[:,1], data[:,2], c='b', marker='o', linestyle='None', alpha=0.05, label='Data', markersize=1)
 	
 	# plot nodes after the training
-	n = ax.plot(final_som[:nr_nodes,0], final_som[:nr_nodes,1], final_som[:nr_nodes,2], c='r', marker='o', alpha = 0.6, label='neurons', markersize=4)
+	n = ax.plot(final_som[:,:,0].flatten(), final_som[:,:,1].flatten(), final_som[:,:,2].flatten(), linestyle='None', c='r', marker='o', alpha = 0.6, label='Neurons', markersize=4)
 	
+	
+	ax.plot_wireframe(final_som[:, :,0],  final_som[:,:,1], final_som[:,:,2], rstride=1, cstride=1, color='r')
+	
+	ax.view_init(elev=20., azim=166)
 	ax.legend(numpoints=1)
-	ax.xaxis.set_label_text('x')
-	ax.yaxis.set_label_text('y')
-	ax.zaxis.set_label_text('z')
+	ax.xaxis.set_label_text('x [mm]')
+	ax.yaxis.set_label_text('y [mm]')
+	ax.zaxis.set_label_text('z [mm]')
 		
 	fig.suptitle(title)
 	
