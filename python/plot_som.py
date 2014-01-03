@@ -65,11 +65,15 @@ def plot_3d(final_som, data, init_som=None, title=None, nr_nodes=50):
 	
 	# plot nodes after the training
 	n = ax.plot(final_som[:,:,0].flatten(), final_som[:,:,1].flatten(), final_som[:,:,2].flatten(), linestyle='None', c='r', marker='o', alpha = 0.6, label='Neurons', markersize=4)
-	
-	
+		
 	ax.plot_wireframe(final_som[:, :,0],  final_som[:,:,1], final_som[:,:,2], rstride=1, cstride=1, color='r')
 	
 	ax.view_init(elev=20., azim=166)
+	#pdb.set_trace()
+	plt.xlim(data[:,0].min(), data[:,0].max())
+	plt.ylim(data[:,1].min(), data[:,1].max())
+	#plt.zlim(data[:,2].min(), data[:,2].max())
+	
 	ax.legend(numpoints=1)
 	ax.xaxis.set_label_text('x [mm]')
 	ax.yaxis.set_label_text('y [mm]')
