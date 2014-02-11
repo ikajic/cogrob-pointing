@@ -74,7 +74,6 @@ def prediction_errors(data, paths):
     for i, path in enumerate(paths):
         som = get_soms(path)
         errors[i, :] = som.quantization_error(data)   
-        #pdb.set_trace()
         outputs = [path, str(errors[i, :].mean()), str(errors[i, :].std())]
         print "".join(word.ljust(max_col) for word in outputs)
         
@@ -112,8 +111,8 @@ if __name__=="__main__":
     
     # 100 as argument means use 100% of data in *.dat folder
     test_data = read_data(test_path, 100, 'u')['hands']
-    somconfs = ("5x5_20000_f1", "5x5_20000_f10",  "5x5_20000_u100",
-                "15x15_20000_f1", "15x15_20000_f10",  "15x15_20000_u100")
+    somconfs = ("5x5_70000_u100",
+                "15x15_70000_u100")
                 #"15x15_20000_f10", "15x15_20000_u100")
     
     #err1 = different_test_sets(somconfs, nr_trials=2)
